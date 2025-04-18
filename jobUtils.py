@@ -1,10 +1,13 @@
-import config
+import collections
+import re
+import time
+
 import requests
 from bs4 import BeautifulSoup
+
+import config
+import requestsUtils
 from urlUtils import remove_subdomain
-import collections
-import time
-import re
 
 
 def fetch_jobs():
@@ -12,20 +15,15 @@ def fetch_jobs():
 
     for i in range(10):
         url = config.getBaseUrl() + str(i * 10)
-        print(url)
         jobSeen = set()
 
-        response = requests.get(url, headers=config.getHeaders())
+        response = requestsUtils.requests_with_retry(lambda: requests.get(url, headers=config.getHeaders()))
+
         soup = BeautifulSoup(response.text, "html.parser")
-
-        if response.status_code != 200:
-            print(f"Request failed with status code: {response.status_code}")
-            continue
-
         div_base_card_elements = soup.find_all("div", class_="base-card")
 
         if len(div_base_card_elements) == 0:
-            print("No elements found. Stop fetching.")
+            print(f"start={i * 10} -  No elements found. Stop fetching.")
             break
 
         for div_element in div_base_card_elements:
@@ -76,13 +74,9 @@ def group_jobs_by_company_and_fetch_company_details(jobs):
 
 
 def fetch_company_details(company_url):
-    response = requests.get(company_url, headers=config.getHeaders())
+    response = requestsUtils.requests_with_retry(lambda: requests.get(company_url, headers=config.getHeaders()))
+
     soup = BeautifulSoup(response.text, "html.parser")
-
-    if response.status_code != 200:
-        print(f"{company_url} - Request failed with status code: {response.status_code}")
-        return (0, "", "")
-
     company_size_element = soup.find_all("div", {"data-test-id": "about-us__size"})
     number_of_employees_element = company_size_element[0].find_all("dd")
     number_of_followers_element = soup.find_all("meta", {"name": "description"})

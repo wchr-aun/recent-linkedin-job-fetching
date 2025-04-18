@@ -1,6 +1,8 @@
-import pygsheets
-import config
 from datetime import datetime, timezone
+
+import pygsheets
+
+import config
 
 
 def write_dataframe_to_google_sheets(df):

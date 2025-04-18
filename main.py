@@ -1,6 +1,6 @@
-import jobUtils
 import dataframeUtils
 import gSheetsUtils
+import jobUtils
 
 jobs = jobUtils.fetch_jobs()
 company_jobs = jobUtils.group_jobs_by_company_and_fetch_company_details(jobs)

@@ -10,7 +10,7 @@ def getKeywords():
 
 
 def getJobPostedTime():
-    return 43200  # Half a day
+    return 43200 + 3600  # Half a day + 1 hour in seconds
 
 
 def getLocation():
