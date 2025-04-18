@@ -9,7 +9,7 @@ def requests_with_retry(requestsFn, attempt=3):
     for i in range(attempt):
         try:
             response = requestsFn()
-            if response.status_code == 200:
+            if response.status_code >= 200 and response.status_code < 300:
                 return response
             else:
                 print(f"Attempt {i + 1}: Request failed with status code: {response.status_code}")
