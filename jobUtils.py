@@ -76,14 +76,20 @@ def group_jobs_by_company_and_fetch_company_details(jobs):
 def fetch_company_details(company_url):
     response = requestsUtils.requests_with_retry(lambda: requests.get(company_url, headers=config.getHeaders()))
 
+    if response == None:
+        print(f"Failed to fetch company details for {company_url}")
+        return (0, 0, "")
+
     soup = BeautifulSoup(response.text, "html.parser")
     company_size_element = soup.find_all("div", {"data-test-id": "about-us__size"})
-    number_of_employees_element = company_size_element[0].find_all("dd")
+
+    number_of_employees_element = get_number_of_employees_element(company_size_element)
+
     number_of_followers_element = soup.find_all("meta", {"name": "description"})
     industry_element = soup.find_all("h2", class_="top-card-layout__headline")
 
     pattern = r"([\d,]+)\s+followers"
-    match = re.search(pattern, number_of_followers_element[0]["content"], re.IGNORECASE)
+    match = re.search(pattern, get_number_of_followers(number_of_followers_element), re.IGNORECASE)
 
     followers_count = 0
     if match:
@@ -91,7 +97,7 @@ def fetch_company_details(company_url):
     else:
         print(f"{company_url} - No followers count found.")
 
-    return (followers_count, number_of_employees_element[0].text.strip(), industry_element[0].text.strip())
+    return (followers_count, number_of_employees_element[0].text.strip(), get_industry(industry_element))
 
 
 def filter_and_sort_companies(company_jobs):
@@ -102,3 +108,24 @@ def filter_and_sort_companies(company_jobs):
     print("Done filtering and sorting")
 
     return sorted(filtered_company_jobs.items(), key=lambda x: x[1]["followersCount"], reverse=True)
+
+
+def get_number_of_employees_element(company_size_element):
+    if len(company_size_element) == 0:
+        return 0
+    else:
+        return company_size_element[0].find_all("dd")
+
+
+def get_number_of_followers(number_of_followers_element):
+    if len(number_of_followers_element) == 0:
+        return 0
+    else:
+        return number_of_followers_element[0]["content"]
+
+
+def get_industry(industry_element):
+    if len(industry_element) == 0:
+        return ""
+    else:
+        return industry_element[0].text.strip()

@@ -6,11 +6,11 @@ def getDelayGapInSecond():
 
 
 def getKeywords():
-    return "Marketing Analyst"
+    return '"Marketing Analyst"'
 
 
 def getJobPostedTime():
-    return 43200 + 3600  # Half a day + 1 hour in seconds
+    return 43200 + 3600  # Half a day + 1 hour (to make up the gap diff in execution) in seconds
 
 
 def getLocation():

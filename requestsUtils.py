@@ -16,6 +16,6 @@ def requests_with_retry(requestsFn, attempt=3):
         except requests.exceptions.RequestException as e:
             print(f"Attempt {i + 1}: Request failed: {e}")
 
-        delay = config.getDelayGapInSecond() * i
+        delay = config.getDelayGapInSecond() * (i + 1)
         print(f"Retrying in {delay} seconds...")
         time.sleep(delay)
