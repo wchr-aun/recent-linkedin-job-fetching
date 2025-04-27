@@ -6,7 +6,7 @@ def getDelayGapInSecond():
 
 
 def getKeywords():
-    return '"Marketing Analyst"'
+    return '"Marketing Analyst" OR "Growth Analyst" OR "Marketing Data Analyst" OR "Growth Data Analyst" OR "Marketing Operations Analyst" OR "Growth Operations Analyst" OR "Marketing Intelligence Analyst" OR "Growth Intelligence Analyst"'
 
 
 def getJobPostedTime():
