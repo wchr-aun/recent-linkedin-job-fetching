@@ -27,15 +27,20 @@ def write_dataframe_to_google_sheets(df, service_file):
 
 
 def delete_old_google_sheets(service_file):
+    print("Deleting old sheets")
     gc = pygsheets.authorize(service_file=service_file)
 
     spreadsheet_id = config.getGoogleSheetsId()
     sh = gc.open_by_key(spreadsheet_id)
 
-    worksheets = sh.worksheets()
+    worksheets = sh.worksheets(force_fetch=True)
 
     for sheet in worksheets:
-        sheet_date_created = datetime.strptime(sheet.title.split(" - ")[-1], "%Y-%m-%d %H:%M")
-        if datetime.now() - sheet_date_created > timedelta(days=7):
-            print(f"Deleting {sheet.title} as it was created over a week")
+        print(f"Checking sheet: {sheet.title}")
+        now = datetime.now(timezone.utc)
+        sheet_date_created = datetime.strptime(sheet.title.split(" - ")[-1], "%Y-%m-%d %H:%M").replace(
+            tzinfo=timezone.utc
+        )
+        if now - sheet_date_created > timedelta(days=7):
             sh.del_worksheet(sheet)
+            print(f"Deleted {sheet.title} as it was created over a week ago.")
