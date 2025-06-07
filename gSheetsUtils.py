@@ -1,12 +1,12 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pygsheets
 
 import config
 
 
-def write_dataframe_to_google_sheets(df):
-    gc = pygsheets.authorize(service_file="./credentials.json")
+def write_dataframe_to_google_sheets(df, service_file):
+    gc = pygsheets.authorize(service_file=service_file)
 
     spreadsheet_id = config.getGoogleSheetsId()
     sh = gc.open_by_key(spreadsheet_id)
@@ -24,3 +24,18 @@ def write_dataframe_to_google_sheets(df):
     new_ws.set_dataframe(df, (1, 1), copy_index=False)
 
     print(f"DataFrame successfully written to '{new_sheet_title}' sheet in the Google Sheet.")
+
+
+def delete_old_google_sheets(service_file):
+    gc = pygsheets.authorize(service_file=service_file)
+
+    spreadsheet_id = config.getGoogleSheetsId()
+    sh = gc.open_by_key(spreadsheet_id)
+
+    worksheets = sh.worksheets()
+
+    for sheet in worksheets:
+        sheet_date_created = datetime.strptime(sheet.title.split(" - ")[-1], "%Y-%m-%d %H:%M")
+        if datetime.now() - sheet_date_created > timedelta(days=7):
+            print(f"Deleting {sheet.title} as it was created over a week")
+            sh.del_worksheet(sheet)
